@@ -1,5 +1,4 @@
-let debug = true;
-let log = (...args) => console.log("Advanced Combat Options | Massive Damage | ", ...args);
+import { Logger } from "./logger";
 
 export function onChange_Actor(actor, updateData)
 {
@@ -14,12 +13,12 @@ export function onChange_Actor(actor, updateData)
 
   if(data.hpChange >= Math.ceil(data.actorMax/2) && data.updateHP !== 0)
   {
-    if(debug) log(`Massive Actor Damage Detected ${actor.name}`);
+    Logger.debug(`Massive Actor Damage Detected ${actor.name}`);
 
     game.socket.emit('module.advanced-combat-options', { name : "MD", data : data});
     recieveData(data);
   }else{
-    if(debug) log(`No Massive Actor Damage Detected ${actor.name}`); 
+    Logger.debug(`No Massive Actor Damage Detected ${actor.name}`); 
   }  
 }
 
@@ -36,24 +35,24 @@ export function onChange_Token(token, updateData)
 
   if(data.hpChange >= Math.ceil(data.actorMax/2) && data.updateHP !== 0)
   {
-    if(debug) log(`Massive Token Damage Detected ${token.name}`);
+    Logger.debug(`Massive Token Damage Detected ${token.name}`);
 
     game.socket.emit('module.advanced-combat-options', { name : "MD", data : data});
     recieveData(data);
   }else{
-    if(debug) log(`No Massive Token Damage Detected ${token.name}`);
+    Logger.debug(`No Massive Token Damage Detected ${token.name}`);
   } 
 }
 
 export function recieveData(data)
 {
-  if(debug) log("Recieved Data", data);
+  Logger.debug("Recieved Data", data);
 
   let actor = canvas.tokens.get(data.actorData.token._id) ? canvas.tokens.get(data.actorData.token._id) : game.actors.get(data.actorData._id);
 
   if(actor.data.permission[game.userId] === CONST.ENTITY_PERMISSIONS.OWNER && !game.user.isGM)
   {
-    if(debug) log("Entered inside the logic statement --- con save should result");
+    Logger.debug("Entered inside the logic statement --- con save should result");
 
     let actor = canvas.tokens.get(data.actorData.token._id) ? canvas.tokens.get(data.actorData.token._id) : game.actors.get(data.actorData._id);
 
@@ -76,7 +75,7 @@ export function recieveData(data)
   }else if(game.user.isGM && !hasPlayerOwner(data.actorData))
   {
     //maybe do stuff?
-    if(debug) log("This isn't owned by any player --- default to GM");
+    Logger.debug("This isn't owned by any player --- default to GM");
 
     let actor = canvas.tokens.get(data.actorData.token._id) ? canvas.tokens.get(data.actorData.token._id) : game.actors.get(data.actorData._id);
 

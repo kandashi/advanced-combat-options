@@ -1,16 +1,17 @@
+import { Logger } from "./logger";
+
 import * as settings from './settings.js';
 import * as LI_module from './lingering-injuries.js';
 import * as MD_module from './massive-damage.js';
 import * as TH_module from './token_hp.js';
 
-let debug = true;
-let log = (...args) => console.log("Advanced Combat Options | ", ...args);
-
 Hooks.on('init', ()=>{
+  Logger.info("Registering All Settings.");
   settings.registerSettings();
 });
 
 Hooks.on('ready', () => {
+  Logger.info("Registering Sockets");
   game.socket.on('module.advanced-combat-options', async (data) => {
     if(data?.name === "LI" && game.settings.get('advanced-combat-options','LI-SETTING'))
     {
@@ -24,14 +25,15 @@ Hooks.on('ready', () => {
 });
 
 Hooks.on('preCreateToken', (scene,token,options,id) => {
-  if(debug) log("Pre Create Token | ", scene,token,options,id);
+  Logger.info("Pre Create Token Capture");
+  Logger.debug("Pre Create Token | ", scene,token,options,id);
 
   TH_module.onCreate(scene,token);
 });
 
 Hooks.on('preUpdateActor', (actor, updateData, difference, id)=>{
-  
-  if(debug) log("Pre Update Actor | ",actor,updateData,difference,id);
+  Logger.info("Pre Update Actor Capture");
+  Logger.debug("Pre Update Actor | ",actor,updateData,difference,id);
 
   //Lingering Injuries
   if(game.settings.get('advanced-combat-options','LI-SETTING'))
@@ -47,7 +49,8 @@ Hooks.on('preUpdateActor', (actor, updateData, difference, id)=>{
 });
 
 Hooks.on('preUpdateToken', (scene,token,updateData,difference, id)=>{
-  if(debug) log("Pre Update Token | ",scene,token,updateData,difference,id);
+  Logger.info("Pre Update Token Capture");
+  Logger.debug("Pre Update Token | ",scene,token,updateData,difference,id);
 
   //Lingering Injuries
   if(game.settings.get('advanced-combat-options','LI-SETTING') && hasProperty(updateData, "actorData.data.attributes.hp.value"))

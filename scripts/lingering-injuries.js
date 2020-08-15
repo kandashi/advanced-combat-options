@@ -1,5 +1,4 @@
-let debug = true;
-let log = (...args) => console.log("Advanced Combat Options | Lingering Injuries | ", ...args);
+import { Logger } from "./logger";
 
 export async function onChange_Actor(actor, updateData)
 {
@@ -16,7 +15,7 @@ export async function onChange_Actor(actor, updateData)
   setTimeout( async ()=>{
     if(dropToZero(data) || await takeCritical(data) || await deathSave(data))
     {
-      if(debug) log(`on Change | Lingering Injury Detected on ${actor.name}!`);
+      Logger.debug(`on Change | Lingering Injury Detected on ${actor.name}!`);
   
       game.socket.emit('module.advanced-combat-options', { name : "LI", data : data});
       recieveData(data);
@@ -37,7 +36,7 @@ export async function onChange_Token(token,updateData)
   setTimeout( async ()=>{
     if(await takeCritical(data))
     {
-      if(debug) log(`on Change | Lingering Injury Detected on ${token.name}!`);
+      Logger.debug(`on Change | Lingering Injury Detected on ${token.name}!`);
 
       recieveData(data);
     }
@@ -46,13 +45,13 @@ export async function onChange_Token(token,updateData)
 
 export function recieveData(data)
 {
-  if(debug) log("Recieved Data", data);
+  Logger.debug("Recieved Data", data);
 
   let actor = canvas.tokens.get(data.actorData.token._id) ? canvas.tokens.get(data.actorData.token._id) : game.actors.get(data.actorData._id);
 
   if(actor.data.permission[game.userId] === CONST.ENTITY_PERMISSIONS.OWNER && !game.user.isGM)
   {
-    if(debug) log("Entered inside the logic statement --- con save should result");
+    Logger.debug("Entered inside the logic statement --- con save should result");
 
     setTimeout(()=> {
       game.packs.find(p=>p.title === "ACO Tables").getContent().then((result) =>{
@@ -66,7 +65,7 @@ export function recieveData(data)
 
   }else if(game.user.isGM && !hasPlayerOwner(data.actorData))
   {
-    if(debug) log("This isn't owned by any player --- default to GM");
+    Logger.debug("This isn't owned by any player --- default to GM");
 
     setTimeout(()=> {
       game.packs.find(p=>p.title === "ACO Tables").getContent().then((result) =>{
@@ -85,10 +84,10 @@ function dropToZero(data = {})
 {
   if(data.hpChange !== 0 && data.updateData.data?.attributes?.hp?.value === 0)
   {
-    if(debug) log("Drop to Zero Function | Return True");
+    Logger.debug("Drop to Zero Function | Return True");
     return true;
   }
-  if(debug) log("Drop to Zero Function | Return False"); 
+  Logger.debug("Drop to Zero Function | Return False"); 
   return false;
 }
 
@@ -99,7 +98,7 @@ async function takeCritical(data = {})
     let flag = await message.getFlag('advanced-combat-options','Lingering-Injuries-takeCritical') ? true : false;
     if(message.isRoll && !flag && message.data.flavor.includes("Attack Roll") && message._roll.parts[0].faces === 20 && critical(message._roll) && data.hpChange > 0)
     {
-        if(debug) log("Take Critical Function | Return True");
+        Logger.debug("Take Critical Function | Return True");
         await message.setFlag('advanced-combat-options','Lingering-Injuries-takeCritical', true);
         return true;
     }
@@ -108,7 +107,7 @@ async function takeCritical(data = {})
       await message.setFlag('advanced-combat-options','Lingering-Injuries-takeCritical', true);
     }
   }
-  if(debug) log("Take Critical Function | Return False");
+  Logger.debug("Take Critical Function | Return False");
   return false;
 
   function critical(rollData)
@@ -134,14 +133,14 @@ async function deathSave(data = {})
       let flag = await message.getFlag('advanced-combat-options','Lingering-Injuries-deathSave') ? true : false;
       if(message.isRoll && !flag && message.data.flavor.includes("Death Saving Throw") && message._roll._total <= 5)
       {
-        if(debug) log("Death Save Function | Return True");
+        Logger.debug("Death Save Function | Return True");
         await message.setFlag('advanced-combat-options','Lingering-Injuries-takeCritical', true);
         return true;
       }
       await message.setFlag('advanced-combat-options','Lingering-Injuries-takeCritical', true);
     }    
   }
-  if(debug) log("Death Save Function | Return False");
+  Logger.debug("Death Save Function | Return False");
   return false;
 }
 

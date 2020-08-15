@@ -1,16 +1,30 @@
-let debug = false;
-let log = (...args) => console.log("Advanced Combat Options | Settings | ", ...args);
+import { Logger } from "./logger";
 
 export function registerSettings()
 {
+  Logger_Settings();
   Lingering_Injuries_Settings();
   Massive_Damage_Settings();
   Token_Settings();
 }
 
+function Logger_Settings()
+{
+  Logger.info("Registering Logger Debugging");
+  game.settings.register('advanced-combat-options','debug', {
+    name : "",
+    hint : "",
+    scope :"world",
+    config : false,
+    default : false,
+    type : Boolean
+  });
+
+}
+
 function Lingering_Injuries_Settings()
 {
-  log("Registering Lingering Injuries");
+  Logger.info("Registering Lingering Injuries");
   game.settings.register('advanced-combat-options','LI-SETTING', {
     name : i18n("aco.settings.LI-SETTING.title"),
     hint : i18n("aco.settings.LI-SETTING.hint"),
@@ -26,7 +40,7 @@ function Lingering_Injuries_Settings()
 
 function Massive_Damage_Settings()
 {
-  log("Registering Massive Damage");
+  Logger.info("Registering Massive Damage");
   game.settings.register('advanced-combat-options','MD-SETTING', {
     name : i18n("aco.settings.MD-SETTING.title"),
     hint : i18n("aco.settings.MD-SETTING.hint"),
@@ -42,7 +56,7 @@ function Massive_Damage_Settings()
 
 function Token_Settings()
 {
-  log("Registering Token Settings");
+  Logger.info("Registering Token Settings");
   game.settings.register('advanced-combat-options','TH-SETTING', {
     name : i18n("aco.settings.TH-SETTING.title"),
     hint : i18n("aco.settings.TH-SETTING.hint"),

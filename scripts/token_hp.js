@@ -1,11 +1,10 @@
-let debug = true;
-let log = (...args) => console.log("Advanced Combat Options | Token HP | ", ...args);
+import { Logger } from "./logger";
 
 export async function onCreate(scene, data)
 {
   let actor = game.actors.get(data.actorId);
 
-  if(data.actorLink)
+  if(data.actorLink || !actor)
   {
     return data;
   }
@@ -19,21 +18,21 @@ export async function onCreate(scene, data)
     {
       let hp_roll = new Roll(formula).roll();
 
-      if(debug) log("Formula Available | value rolled.");
+      Logger.debug("Formula Available | value rolled.");
 
       setProperty(data, "actorData.data.attributes.hp.value", hp_roll.total);
       setProperty(data, "actorData.data.attributes.hp.max", hp_roll.total);
     }else{
-      if(debug) log("No formula Available | setting max.");
+      Logger.debug("No formula Available | setting max.");
       setProperty(data, "actorData.data.attributes.hp.value", actor.data.data.attributes.hp.value);
       setProperty(data, "actorData.data.attributes.hp.max", actor.data.data.attributes.hp.max);
     }
   }else{
-    if(debug) log("Setting Unset | setting max.");
+    Logger.debug("Setting Unset | setting max.");
     setProperty(data, "actorData.data.attributes.hp.value", actor.data.data.attributes.hp.value);
     setProperty(data, "actorData.data.attributes.hp.max", actor.data.data.attributes.hp.max);
   }
 
-  if(debug) log("Ending Data | ", data);
+  Logger.debug("Ending Data | ", data);
   return data; 
 }
