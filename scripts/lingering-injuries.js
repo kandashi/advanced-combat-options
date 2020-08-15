@@ -4,7 +4,6 @@ let log = (...args) => console.log("Advanced Combat Options | Lingering Injuries
 export async function onChange_Actor(actor, updateData)
 {
   let data = {
-    actor : actor,
     updateData : updateData,
     actorHP : actor.data.data.attributes.hp.value,
     updateHP : (hasProperty(updateData,"data.attributes.hp.value") ? updateData.data.attributes.hp.value : 0),
@@ -13,8 +12,6 @@ export async function onChange_Actor(actor, updateData)
     updateDS : (hasProperty(updateData,"data.attributes.death.failure") ? updateData.data.attributes.death.failure : 0),
     dsChange : (actor.data.data.attributes.death.failure - (hasProperty(updateData,"data.attributes.death.failure") ? updateData.data.attributes.death.failure : actor.data.data.attributes.death.failure))
   };
-
-  log("onChange_Actor data check --- ",data);
 
   setTimeout( async ()=>{
     if(dropToZero(data) || await takeCritical(data) || await deathSave(data))
@@ -30,8 +27,7 @@ export async function onChange_Actor(actor, updateData)
 export async function onChange_Token(token,updateData)
 {
   let data = {
-    actor : game.actors.get(token.actorId),
-    actorData : token.actorData,
+    actorData : canvas.tokens.get(token._id).actor.data,
     updateData : updateData,
     actorHP : token.actorData.data.attributes.hp.value,
     updateHP : updateData.actorData.data.attributes.hp.value,
@@ -41,9 +37,8 @@ export async function onChange_Token(token,updateData)
   setTimeout( async ()=>{
     if(await takeCritical(data))
     {
-      if(debug) log(`on Change | Lingering Injury Detected on ${data.actorData.name}!`);
+      if(debug) log(`on Change | Lingering Injury Detected on ${token.name}!`);
 
-      //emit to recieveData (sorta not really --- DM rolls this one)
       recieveData(data);
     }
   }, 500);
@@ -51,7 +46,39 @@ export async function onChange_Token(token,updateData)
 
 export function recieveData(data)
 {
-   log("EMITTED DATA | ",data);
+  if(debug) log("Recieved Data", data);
+
+  let actor = canvas.tokens.get(data.actorData.token._id) ? canvas.tokens.get(data.actorData.token._id) : game.actors.get(data.actorData._id);
+
+  if(actor.data.permission[game.userId] === CONST.ENTITY_PERMISSIONS.OWNER && !game.user.isGM)
+  {
+    if(debug) log("Entered inside the logic statement --- con save should result");
+
+    setTimeout(()=> {
+      game.packs.find(p=>p.title === "ACO Tables").getContent().then((result) =>{
+        if(!result) return;
+
+        let table = result.find(r => r.name === "Lingering Injuries")
+
+        table.draw();
+      });
+    }, 1000);
+
+  }else if(game.user.isGM && !hasPlayerOwner(data.actorData))
+  {
+    if(debug) log("This isn't owned by any player --- default to GM");
+
+    setTimeout(()=> {
+      game.packs.find(p=>p.title === "ACO Tables").getContent().then((result) =>{
+        if(!result) return;
+
+        let table = result.find(r => r.name === "Lingering Injuries")
+
+        table.draw();
+      });
+    }, 1000);
+
+  }
 }
 
 function dropToZero(data = {})
@@ -115,5 +142,15 @@ async function deathSave(data = {})
     }    
   }
   if(debug) log("Death Save Function | Return False");
+  return false;
+}
+
+function hasPlayerOwner(actorData)
+{
+  if ( actorData.permission["default"] >= CONST.ENTITY_PERMISSIONS.OWNER ) return true;
+  for ( let u of game.users.entities ) {
+    if ( u.isGM ) continue;
+    if ( actorData.permission[u.id] >= CONST.ENTITY_PERMISSIONS.OWNER ) return true;
+  }
   return false;
 }

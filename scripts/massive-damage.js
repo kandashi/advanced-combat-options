@@ -4,7 +4,6 @@ let log = (...args) => console.log("Advanced Combat Options | Massive Damage | "
 export function onChange_Actor(actor, updateData)
 {
   let data = {
-    actor : actor,
     actorData : actor.data,
     updateData : updateData,
     actorHP : actor.data.data.attributes.hp.value,
@@ -27,8 +26,7 @@ export function onChange_Actor(actor, updateData)
 export function onChange_Token(token, updateData)
 {
   let data = {
-    actor : game.actors.get(token.actorId),
-    actorData : token.actorData,
+    actorData : canvas.tokens.get(token._id).actor.data,
     updateData : updateData,
     actorHP : token.actorData.data.attributes.hp.value,
     actorMax : token.actorData.data.attributes.hp.max,
@@ -51,15 +49,15 @@ export function recieveData(data)
 {
   if(debug) log("Recieved Data", data);
 
-  //better logic based on users??
+  let actor = canvas.tokens.get(data.actorData.token._id) ? canvas.tokens.get(data.actorData.token._id) : game.actors.get(data.actorData._id);
 
-  if(!game.user.character && !game.user.isGM) return ui.notifications.error(`User does not have a linked character`);
-
-  if(!game.user.isGM && game.user.character._id === data.actor._id)
+  if(actor.data.permission[game.userId] === CONST.ENTITY_PERMISSIONS.OWNER && !game.user.isGM)
   {
-    if(debug) log("This is my actor! It hurts!");
+    if(debug) log("Entered inside the logic statement --- con save should result");
 
-    game.user.character.rollAbilitySave("con").then((results)  =>{
+    let actor = canvas.tokens.get(data.actorData.token._id) ? canvas.tokens.get(data.actorData.token._id) : game.actors.get(data.actorData._id);
+
+    actor.rollAbilitySave("con").then((results)  =>{
       if(!results) return;
 
       setTimeout(()=> {
@@ -75,5 +73,38 @@ export function recieveData(data)
         }
       }, 1000);
     });
+  }else if(game.user.isGM && !hasPlayerOwner(data.actorData))
+  {
+    //maybe do stuff?
+    if(debug) log("This isn't owned by any player --- default to GM");
+
+    let actor = canvas.tokens.get(data.actorData.token._id) ? canvas.tokens.get(data.actorData.token._id) : game.actors.get(data.actorData._id);
+
+    actor.rollAbilitySave("con").then((results)  =>{
+      if(!results) return;
+
+      setTimeout(()=> {
+        if(results.total < 15)
+        {
+          game.packs.find(p=>p.title === "ACO Tables").getContent().then((result) =>{
+            if(!result) return;
+
+            let table = result.find(r => r.name === "Massive Damage; System Shock");
+
+            table.draw();
+          });
+        }
+      }, 1000);
+    });
   }
+}
+
+function hasPlayerOwner(actorData)
+{
+  if ( actorData.permission["default"] >= CONST.ENTITY_PERMISSIONS.OWNER ) return true;
+  for ( let u of game.users.entities ) {
+    if ( u.isGM ) continue;
+    if ( actorData.permission[u.id] >= CONST.ENTITY_PERMISSIONS.OWNER ) return true;
+  }
+  return false;
 }
