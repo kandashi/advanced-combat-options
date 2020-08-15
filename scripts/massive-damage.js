@@ -1,22 +1,21 @@
-let debug = false;
+let debug = true;
 let log = (...args) => console.log("Advanced Combat Options | Massive Damage | ", ...args);
 
-export function onChange(actor, updateData)
+export function onChange_Actor(actor, updateData)
 {
   let data = {
     actor : actor,
     updateData : updateData,
     actorHP : actor.data.data.attributes.hp.value,
-    updateHP : updateData?.data?.attributes?.hp?.value
+    updateHP : updateData?.data?.attributes?.hp?.value,
+    hpChange : ()=> {return (this.actorHP - this.updateHP)}
   };
 
   if(actor.isPC && data.updateHP)
   {
-    let hpChange = data.actorHP - data.updateHP;
-
-    if(hpChange >= Math.ceil(actor.data.data.attributes.hp.max/2) && data.updateHP !== 0)
+    if(data.hpChange >= Math.ceil(actor.data.data.attributes.hp.max/2) && data.updateHP !== 0)
     {
-      if(debug) log("MASSIVE DAMAGE DETECTED");
+      if(debug) log(`Massive Actor Damage Detected ${actor.name} | `, data);
 
       game.socket.emit('module.advanced-combat-options', { name : "MD", data : data});
       recieveData(data);
@@ -24,9 +23,35 @@ export function onChange(actor, updateData)
   }
 }
 
+export function onChange_Token(actorData, updateData)
+{
+  let data = {
+    actorData : actorData,
+    updateData : updateData,
+    actorHP : actorData.data.attributes.hp.value,
+    actorMax : actorData.data.attributes.hp.max,
+    updateHP : updateData?.actorData?.data?.attributes?.hp?.value,
+    hpChange : () => { return (this.actorHP - this.updateHP)}
+  }
+
+  log(`on Change Token | `, data, data.hpChange >= Math.ceil(data.actorMax/2), data.updateHP !== 0);
+
+  if(data.hpChange >= Math.ceil(data.actorMax/2) && data.updateHP !== 0)
+  {
+    if(debug) log(`Massive Token Damage Detected ${actorData.name} | `, data);
+
+    game.socket.emit('module.advanced-combat-options', { name : "MD", data : data});
+    recieveData(data);
+  }
+
+
+}
+
 export function recieveData(data)
 {
   if(debug) log("Recieved Data", data);
+
+  //better logic based on users??
 
   if(!game.user.character && !game.user.isGM) return ui.notifications.error(`User does not have a linked character`);
 

@@ -1,7 +1,7 @@
-let debug = false;
+let debug = true;
 let log = (...args) => console.log("Advanced Combat Options | Lingering Injuries | ", ...args);
 
-export async function onChange(actor, updateData)
+export async function onChange_Actor(actor, updateData)
 {
   let data = {
     actor : actor,
@@ -15,11 +15,33 @@ export async function onChange(actor, updateData)
   };
 
   setTimeout( async ()=>{
-    if(( dropToZero(data) || await takeCritical(data) || await deathSave(data)) && actor.isPC)
+    if(( dropToZero(data) || await takeCritical() || await deathSave(data)) && actor.isPC)
     {
-      if(debug) log("on Change | Lingering Injury Detected!");
+      if(debug) log(`on Change | Lingering Injury Detected on ${actor.name}!`);
   
-      //emit to recieveData
+      game.socket.emit('module.advanced-combat-options', { name : "LI", data : data});
+      recieveData(data);
+    }
+  }, 500);
+}
+
+export async function onChange_Token(actorData,updateData)
+{
+  let data = {
+    actorData : actorData,
+    updateData : updateData,
+    actorHP : actorData.data.attributes.hp.value,
+    updateHP : (updateData.data?.attributes?.hp?.value ? updateData.data.attributes.hp.value : 0),
+    hpChange : () => { return (this.actorHP - this.updateHP)}
+  };
+
+  setTimeout( async ()=>{
+    if(await takeCritical(data))
+    {
+      if(debug) log(`on Change | Lingering Injury Detected on ${data.actorData.name}!`);
+
+      //emit to recieveData (sorta not really --- DM rolls this one)
+      recieveData(data);
     }
   }, 500);
 }
@@ -40,21 +62,21 @@ function dropToZero(data)
   return false;
 }
 
-async function takeCritical(data)
+async function takeCritical(data = {})
 {
   for(let message of game.messages)
   {
     let flag = await message.getFlag('advanced-combat-options','Lingering-Injuries-takeCritical') ? true : false;
     if(message.isRoll && !flag && message.data.flavor.includes("Attack Roll") && message._roll.parts[0].faces === 20 && critical(message._roll))
     {
-        if(debug) log("Take Critical Function | I WAS CRIT! ",data);
-        if(debug) log("Take Critical Function | Return True",data);
+        if(debug) log("Take Critical Function | I WAS CRIT! ", data);
+        if(debug) log("Take Critical Function | Return True", data);
         await message.setFlag('advanced-combat-options','Lingering-Injuries-takeCritical', true);
         return true;
     }
     await message.setFlag('advanced-combat-options','Lingering-Injuries-takeCritical', true);
   }
-  if(debug) log("Take Critical Function | Return False",data);
+  if(debug) log("Take Critical Function | Return False", data);
   return false;
 
   function critical(rollData)

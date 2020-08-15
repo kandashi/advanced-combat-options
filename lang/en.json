@@ -1,7 +1,10 @@
 {
   "aco.settings.LI-SETTING.title" : "Lingering Injuries",
-  "aco.settings.LI-SETTING.hint" : "If a player character takes a critical hit, drops to 0 hp, or fails a death saving throw by 5 or more, Lingering Injuries will roll for the player.",
+  "aco.settings.LI-SETTING.hint"  : "If a player character takes a critical hit, drops to 0 hp, or fails a death saving throw by 5 or more, Lingering Injuries will roll for the player.",
 
   "aco.settings.MD-SETTING.title" : "Massive Damage",
-  "aco.settings.MD-SETTING.hint" : "If a creature takes more than half its health in 1 hit, Massive Damage will roll for the creature."
+  "aco.settings.MD-SETTING.hint"  : "If a creature takes more than half its health in 1 hit, Massive Damage will roll for the creature.",
+
+  "aco.settings.TH-SETTING.title" : "Token HP",
+  "aco.settings.TH-SETTING.hint"  : "Randomly rolls HP for unlinked tokens."
 }

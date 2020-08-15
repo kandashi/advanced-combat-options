@@ -5,6 +5,7 @@ export function registerSettings()
 {
   Lingering_Injuries_Settings();
   Massive_Damage_Settings();
+  Token_Settings();
 }
 
 function Lingering_Injuries_Settings()
@@ -29,6 +30,22 @@ function Massive_Damage_Settings()
   game.settings.register('advanced-combat-options','MD-SETTING', {
     name : i18n("aco.settings.MD-SETTING.title"),
     hint : i18n("aco.settings.MD-SETTING.hint"),
+    scope :"world",
+    config : true,
+    default : false,
+    type : Boolean,
+    onChange : value => {
+        window.location.reload();
+    }
+  });
+}
+
+function Token_Settings()
+{
+  log("Registering Token Settings");
+  game.settings.register('advanced-combat-options','TH-SETTING', {
+    name : i18n("aco.settings.TH-SETTING.title"),
+    hint : i18n("aco.settings.TH-SETTING.hint"),
     scope :"world",
     config : true,
     default : false,
