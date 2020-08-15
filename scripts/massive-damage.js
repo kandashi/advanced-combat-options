@@ -5,46 +5,46 @@ export function onChange_Actor(actor, updateData)
 {
   let data = {
     actor : actor,
+    actorData : actor.data,
     updateData : updateData,
     actorHP : actor.data.data.attributes.hp.value,
-    updateHP : updateData?.data?.attributes?.hp?.value,
-    hpChange : ()=> {return (this.actorHP - this.updateHP)}
+    actorMax : actor.data.data.attributes.hp.max,
+    updateHP : (hasProperty(updateData,"data.attributes.hp.value") ? updateData.data.attributes.hp.value : 0),
+    hpChange : (actor.data.data.attributes.hp.value - (hasProperty(updateData,"data.attributes.hp.value") ? updateData.data.attributes.hp.value : actor.data.data.attributes.hp.value))
   };
-
-  if(actor.isPC && data.updateHP)
-  {
-    if(data.hpChange >= Math.ceil(actor.data.data.attributes.hp.max/2) && data.updateHP !== 0)
-    {
-      if(debug) log(`Massive Actor Damage Detected ${actor.name} | `, data);
-
-      game.socket.emit('module.advanced-combat-options', { name : "MD", data : data});
-      recieveData(data);
-    }
-  }
-}
-
-export function onChange_Token(actorData, updateData)
-{
-  let data = {
-    actorData : actorData,
-    updateData : updateData,
-    actorHP : actorData.data.attributes.hp.value,
-    actorMax : actorData.data.attributes.hp.max,
-    updateHP : updateData?.actorData?.data?.attributes?.hp?.value,
-    hpChange : () => { return (this.actorHP - this.updateHP)}
-  }
-
-  log(`on Change Token | `, data, data.hpChange >= Math.ceil(data.actorMax/2), data.updateHP !== 0);
 
   if(data.hpChange >= Math.ceil(data.actorMax/2) && data.updateHP !== 0)
   {
-    if(debug) log(`Massive Token Damage Detected ${actorData.name} | `, data);
+    if(debug) log(`Massive Actor Damage Detected ${actor.name}`);
 
     game.socket.emit('module.advanced-combat-options', { name : "MD", data : data});
     recieveData(data);
+  }else{
+    if(debug) log(`No Massive Actor Damage Detected ${actor.name}`); 
+  }  
+}
+
+export function onChange_Token(token, updateData)
+{
+  let data = {
+    actor : game.actors.get(token.actorId),
+    actorData : token.actorData,
+    updateData : updateData,
+    actorHP : token.actorData.data.attributes.hp.value,
+    actorMax : token.actorData.data.attributes.hp.max,
+    updateHP : updateData.actorData.data.attributes.hp.value,
+    hpChange : (token.actorData.data.attributes.hp.value- updateData.actorData.data.attributes.hp.value)
   }
 
+  if(data.hpChange >= Math.ceil(data.actorMax/2) && data.updateHP !== 0)
+  {
+    if(debug) log(`Massive Token Damage Detected ${token.name}`);
 
+    game.socket.emit('module.advanced-combat-options', { name : "MD", data : data});
+    recieveData(data);
+  }else{
+    if(debug) log(`No Massive Token Damage Detected ${token.name}`);
+  } 
 }
 
 export function recieveData(data)
@@ -57,7 +57,7 @@ export function recieveData(data)
 
   if(!game.user.isGM && game.user.character._id === data.actor._id)
   {
-    if(debug) log("This is my actor! It hurts!", game.user, data.actor);
+    if(debug) log("This is my actor! It hurts!");
 
     game.user.character.rollAbilitySave("con").then((results)  =>{
       if(!results) return;

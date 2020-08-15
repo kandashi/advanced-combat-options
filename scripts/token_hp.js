@@ -19,7 +19,7 @@ export async function onCreate(scene, data)
     {
       let hp_roll = new Roll(formula).roll();
 
-      if(debug) log("Formula Available | value rolled.", hp_roll);
+      if(debug) log("Formula Available | value rolled.");
 
       setProperty(data, "actorData.data.attributes.hp.value", hp_roll.total);
       setProperty(data, "actorData.data.attributes.hp.max", hp_roll.total);

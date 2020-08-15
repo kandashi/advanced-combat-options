@@ -7,15 +7,17 @@ export async function onChange_Actor(actor, updateData)
     actor : actor,
     updateData : updateData,
     actorHP : actor.data.data.attributes.hp.value,
-    updateHP : (updateData.data?.attributes?.hp?.value ? updateData.data.attributes.hp.value : 0),
-    hpChange : () => { return (this.actorHP - this.updateHP)},
+    updateHP : (hasProperty(updateData,"data.attributes.hp.value") ? updateData.data.attributes.hp.value : 0),
+    hpChange : (actor.data.data.attributes.hp.value - (hasProperty(updateData,"data.attributes.hp.value") ? updateData.data.attributes.hp.value : actor.data.data.attributes.hp.value)),
     actorDS : actor.data.data.attributes.death.failure,
-    updateDS : (updateData?.data?.attributes?.death?.failure ? updateData.data.attributes.death.failure : 0),
-    dsChange : () => { return (this.actorDS - this.updateDS)}
+    updateDS : (hasProperty(updateData,"data.attributes.death.failure") ? updateData.data.attributes.death.failure : 0),
+    dsChange : (actor.data.data.attributes.death.failure - (hasProperty(updateData,"data.attributes.death.failure") ? updateData.data.attributes.death.failure : actor.data.data.attributes.death.failure))
   };
 
+  log("onChange_Actor data check --- ",data);
+
   setTimeout( async ()=>{
-    if(( dropToZero(data) || await takeCritical() || await deathSave(data)) && actor.isPC)
+    if(dropToZero(data) || await takeCritical(data) || await deathSave(data))
     {
       if(debug) log(`on Change | Lingering Injury Detected on ${actor.name}!`);
   
@@ -25,14 +27,15 @@ export async function onChange_Actor(actor, updateData)
   }, 500);
 }
 
-export async function onChange_Token(actorData,updateData)
+export async function onChange_Token(token,updateData)
 {
   let data = {
-    actorData : actorData,
+    actor : game.actors.get(token.actorId),
+    actorData : token.actorData,
     updateData : updateData,
-    actorHP : actorData.data.attributes.hp.value,
-    updateHP : (updateData.data?.attributes?.hp?.value ? updateData.data.attributes.hp.value : 0),
-    hpChange : () => { return (this.actorHP - this.updateHP)}
+    actorHP : token.actorData.data.attributes.hp.value,
+    updateHP : updateData.actorData.data.attributes.hp.value,
+    hpChange : (token.actorData.data.attributes.hp.value - updateData.actorData.data.attributes.hp.value)
   };
 
   setTimeout( async ()=>{
@@ -51,14 +54,14 @@ export function recieveData(data)
    log("EMITTED DATA | ",data);
 }
 
-function dropToZero(data)
+function dropToZero(data = {})
 {
   if(data.hpChange !== 0 && data.updateData.data?.attributes?.hp?.value === 0)
   {
-    if(debug) log("Drop to Zero Function | Return True",data);
+    if(debug) log("Drop to Zero Function | Return True");
     return true;
   }
-  if(debug) log("Drop to Zero Function | Return False",data); 
+  if(debug) log("Drop to Zero Function | Return False"); 
   return false;
 }
 
@@ -67,16 +70,18 @@ async function takeCritical(data = {})
   for(let message of game.messages)
   {
     let flag = await message.getFlag('advanced-combat-options','Lingering-Injuries-takeCritical') ? true : false;
-    if(message.isRoll && !flag && message.data.flavor.includes("Attack Roll") && message._roll.parts[0].faces === 20 && critical(message._roll))
+    if(message.isRoll && !flag && message.data.flavor.includes("Attack Roll") && message._roll.parts[0].faces === 20 && critical(message._roll) && data.hpChange > 0)
     {
-        if(debug) log("Take Critical Function | I WAS CRIT! ", data);
-        if(debug) log("Take Critical Function | Return True", data);
+        if(debug) log("Take Critical Function | Return True");
         await message.setFlag('advanced-combat-options','Lingering-Injuries-takeCritical', true);
         return true;
     }
-    await message.setFlag('advanced-combat-options','Lingering-Injuries-takeCritical', true);
+    if(!message.isRoll || !message.data.flavor.includes("Attack Roll"))
+    {
+      await message.setFlag('advanced-combat-options','Lingering-Injuries-takeCritical', true);
+    }
   }
-  if(debug) log("Take Critical Function | Return False", data);
+  if(debug) log("Take Critical Function | Return False");
   return false;
 
   function critical(rollData)
@@ -93,23 +98,22 @@ async function takeCritical(data = {})
   }
 }
 
-async function deathSave(data)
+async function deathSave(data = {})
 {
-  if(data.actorDS < data.updateDS && data.updateDS !== 3) 
+  if(data.dsChange < 0 && data.updateDS !== 3) 
   {
-    if(debug) log("Death Save Function | outer if statement PENETRATED");
     for(let message of game.messages)
     {
       let flag = await message.getFlag('advanced-combat-options','Lingering-Injuries-deathSave') ? true : false;
       if(message.isRoll && !flag && message.data.flavor.includes("Death Saving Throw") && message._roll._total <= 5)
       {
-        if(debug) log("Death Save Function | Return True", data);
+        if(debug) log("Death Save Function | Return True");
         await message.setFlag('advanced-combat-options','Lingering-Injuries-takeCritical', true);
         return true;
       }
       await message.setFlag('advanced-combat-options','Lingering-Injuries-takeCritical', true);
     }    
   }
-  if(debug) log("Death Save Function | Return False", data);
+  if(debug) log("Death Save Function | Return False");
   return false;
 }

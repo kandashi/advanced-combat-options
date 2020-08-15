@@ -10,8 +10,6 @@ Hooks.on('init', ()=>{
   settings.registerSettings();
 });
 
-
-
 Hooks.on('ready', () => {
   game.socket.on('module.advanced-combat-options', async (data) => {
     if(data?.name === "LI" && game.settings.get('advanced-combat-options','LI-SETTING'))
@@ -42,7 +40,7 @@ Hooks.on('preUpdateActor', (actor, updateData, difference, id)=>{
   }
 
   //Massive Damage
-  if(game.settings.get('advanced-combat-options','MD-SETTING'))
+  if(game.settings.get('advanced-combat-options','MD-SETTING') && hasProperty(updateData, "data.attributes.hp.value"))
   {
     MD_module.onChange_Actor(actor,updateData);
   }
@@ -52,14 +50,14 @@ Hooks.on('preUpdateToken', (scene,token,updateData,difference, id)=>{
   if(debug) log("Pre Update Token | ",scene,token,updateData,difference,id);
 
   //Lingering Injuries
-  if(game.settings.get('advanced-combat-options','LI-SETTING') && updateData?.actorData?.data?.attributes?.hp?.value)
+  if(game.settings.get('advanced-combat-options','LI-SETTING') && hasProperty(updateData, "actorData.data.attributes.hp.value"))
   {
-    LI_module.onChange_Token(token.actorData,updateData);
+    LI_module.onChange_Token(token,updateData);
   }
 
   //Massive Damage
-  if(game.settings.get('advanced-combat-options','MD-SETTING') && updateData?.actorData?.data?.attributes?.hp?.value)
+  if(game.settings.get('advanced-combat-options','MD-SETTING') && hasProperty(updateData, "actorData.data.attributes.hp.value"))
   {
-    MD_module.onChange_Token(token.actorData,updateData);
+    MD_module.onChange_Token(token,updateData);
   }
 });
