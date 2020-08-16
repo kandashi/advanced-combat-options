@@ -1,4 +1,4 @@
-import { Logger } from "./logger";
+import { Logger } from './logger.js';
 
 import * as settings from './settings.js';
 import * as LI_module from './lingering-injuries.js';

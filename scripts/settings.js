@@ -1,4 +1,4 @@
-import { Logger } from "./logger";
+import { Logger } from './logger.js';
 
 export function registerSettings()
 {
@@ -16,7 +16,7 @@ function Logger_Settings()
     hint : "",
     scope :"world",
     config : false,
-    default : false,
+    default : true,
     type : Boolean
   });
 

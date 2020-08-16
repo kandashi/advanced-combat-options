@@ -1,13 +1,15 @@
-import { Logger } from "./logger";
+import { Logger } from './logger.js';
 
 export async function onChange_Actor(actor, updateData)
 {
   let data = {
+    id : actor._id,
+    actorData : actor.data,
     updateData : updateData,
     actorHP : actor.data.data.attributes.hp.value,
     updateHP : (hasProperty(updateData,"data.attributes.hp.value") ? updateData.data.attributes.hp.value : 0),
     hpChange : (actor.data.data.attributes.hp.value - (hasProperty(updateData,"data.attributes.hp.value") ? updateData.data.attributes.hp.value : actor.data.data.attributes.hp.value)),
-    actorDS : actor.data.data.attributes.death.failure,
+    actorDS : actor.data.data.attributes?.death.failure,
     updateDS : (hasProperty(updateData,"data.attributes.death.failure") ? updateData.data.attributes.death.failure : 0),
     dsChange : (actor.data.data.attributes.death.failure - (hasProperty(updateData,"data.attributes.death.failure") ? updateData.data.attributes.death.failure : actor.data.data.attributes.death.failure))
   };
@@ -26,6 +28,7 @@ export async function onChange_Actor(actor, updateData)
 export async function onChange_Token(token,updateData)
 {
   let data = {
+    id : token._id,
     actorData : canvas.tokens.get(token._id).actor.data,
     updateData : updateData,
     actorHP : token.actorData.data.attributes.hp.value,
@@ -47,37 +50,43 @@ export function recieveData(data)
 {
   Logger.debug("Recieved Data", data);
 
-  let actor = canvas.tokens.get(data.actorData.token._id) ? canvas.tokens.get(data.actorData.token._id) : game.actors.get(data.actorData._id);
+  let actor = canvas.tokens.get(data.id).actor ? canvas.tokens.get(data.id).actor : game.actors.get(data.id);
+
+  Logger.debug("Actor Data : ", actor);
 
   if(actor.data.permission[game.userId] === CONST.ENTITY_PERMISSIONS.OWNER && !game.user.isGM)
   {
     Logger.debug("Entered inside the logic statement --- con save should result");
-
-    setTimeout(()=> {
-      game.packs.find(p=>p.title === "ACO Tables").getContent().then((result) =>{
-        if(!result) return;
-
-        let table = result.find(r => r.name === "Lingering Injuries")
-
-        table.draw();
-      });
-    }, 1000);
+    executeInjury(actor);
 
   }else if(game.user.isGM && !hasPlayerOwner(data.actorData))
   {
     Logger.debug("This isn't owned by any player --- default to GM");
-
-    setTimeout(()=> {
-      game.packs.find(p=>p.title === "ACO Tables").getContent().then((result) =>{
-        if(!result) return;
-
-        let table = result.find(r => r.name === "Lingering Injuries")
-
-        table.draw();
-      });
-    }, 1000);
-
+    executeInjury(actor);
   }
+}
+
+async function executeInjury(actor = {})
+{
+  setTimeout(async ()=> {
+
+    let table_pack = await game.packs.find(p=>p.title === "ACO Tables").getContent();
+    let item_pack = await game.packs.find(p=>p.title === "ACO Items").getContent();
+
+    Logger.debug(table_pack,item_pack);
+
+    let table = await table_pack.find(t=>t.name === "Lingering Injuries");
+
+    let table_result = await table.draw();
+
+    Logger.debug(table_result);
+
+    let item = item_pack.find(i=>i.name === table_result.results[0].text);
+
+    if(!item) return Logger.debug(`Error with fetching item ${table_result.results.text}`);
+
+    await actor.createOwnedItem(item, {});
+  }, 1000);
 }
 
 function dropToZero(data = {})

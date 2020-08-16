@@ -1,4 +1,4 @@
-import { Logger } from "./logger";
+import { Logger } from './logger.js';
 
 export function onChange_Actor(actor, updateData)
 {
