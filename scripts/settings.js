@@ -7,6 +7,7 @@ export function registerSettings()
   Massive_Damage_Settings();
   Token_Settings();
   Unconscious_Exhaustion_Settings();
+  Healing_Surge_Settings();
 }
 
 function Logger_Settings()
@@ -77,6 +78,22 @@ function Unconscious_Exhaustion_Settings()
   game.settings.register('advanced-combat-options','UE-SETTING', {
     name : i18n("aco.settings.UE-SETTING.title"),
     hint : i18n("aco.settings.UE-SETTING.hint"),
+    scope :"world",
+    config : true,
+    default : false,
+    type : Boolean,
+    onChange : value => {
+        window.location.reload();
+    }
+  });
+}
+
+function Healing_Surge_Settings()
+{
+  Logger.info("Registering Healing Surge Settings");
+  game.settings.register('advanced-combat-options','HS-SETTING', {
+    name : i18n("aco.settings.HS-SETTING.title"),
+    hint : i18n("aco.settings.HS-SETTING.hint"),
     scope :"world",
     config : true,
     default : false,

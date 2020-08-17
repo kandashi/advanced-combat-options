@@ -5,6 +5,7 @@ import * as LI_module from './lingering-injuries.js';
 import * as MD_module from './massive-damage.js';
 import * as TH_module from './token_hp.js';
 import * as UE_module from './unconscious_exhaustion.js';
+import * as HS_module from './healing_surge.js';
 
 Hooks.on('init', ()=>{
   Logger.info("Registering All Settings.");
@@ -73,5 +74,58 @@ Hooks.on('preUpdateToken', (scene,token,updateData,difference, id)=>{
   if(game.settings.get('advanced-combat-options','MD-SETTING') && hasProperty(updateData, "actorData.data.attributes.hp.value"))
   {
     MD_module.onChange_Token(token,updateData);
+  }
+});
+
+Hooks.on(`renderLongRestDialog`, (dialog, html)=> { 
+  if(game.settings.get('advanced-combat-options','HS-SETTING'))
+  {
+    Logger.debug(`Hooks | Render Long Rest Dialog | Variables | `, dialog,html);
+    document.getElementById(`long-rest`)[1].addEventListener("click", () => { 
+      HS_module.onChange_Actor(dialog.actor,"longrest");
+    });
+  }
+});
+
+Hooks.on(`renderShortRestDialog`, (dialog,html) => {
+  if(game.settings.get('advanced-combat-options','HS-SETTING'))
+  {
+    /*
+    let previousHD = 0, previousHP = 0, recoveredHD = 0, spentHD = 0, recoveredHP = 0;
+    dialog.actor.items.filter(i=>i.data.type === "class").reduce((item)=>{
+      previousHD += item.data.data.hitDiceUsed;
+    });
+
+    previousHP = dialog.actor.data.data.attributes.hp.value;*/
+
+    document.getElementById(`short-rest-hd`)[3].addEventListener("click", async () => { 
+      //spentHD = await HS_module.onChange_Actor(dialog.actor,"shortrest", previousHD);
+      await HS_module.onChange_Actor(dialog.actor,"shortrest");
+    });
+
+    //hit die & chat message messing with
+    /*let hookID = Hooks.on(`preCreateChatMessage`, (message,options,userId) =>{
+      Logger.info(`Pre Create Chat message | `, message);
+      if(message.content.includes(`takes a short rest spending`))
+      {
+        let updated_actor = game.actors.get(dialog.actor.id);
+
+        updated_actor.items.filter(i=>i.data.type === "class").reduce((item)=>{
+          recoveredHD += item.data.data.hitDiceUsed; //amount of hitdie that are missing
+        });
+
+        recoveredHD -= previousHD;
+        
+        recoveredHP = updated_actor.data.data.attributes.hp.value - previousHP;
+
+        let newMessage = message.content.substr(0, message.content.indexOf('spending'));
+        newMessage += `recovered ${recoveredHD} Hit Dice and spent ${spentHD} Hit Dice recovering ${recoveredHP} Hit Points.`;
+  
+        setProperty(message, "content", newMessage);
+        previousHD = 0, previousHP = 0, recoveredHD = 0, spentHD = 0, recoveredHP = 0;
+  
+        Hooks.off(`preCreateChatMessage`, hookID);
+      }
+    });*/
   }
 });

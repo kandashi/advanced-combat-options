@@ -79,7 +79,7 @@ async function executeInjury(actor = {})
 
     let table = await table_pack.find(t=>t.name === "Lingering Injuries");
 
-    let table_result = await table.draw();
+    let table_result = await table.draw(); //add setting maybe to allow for private drawing.
 
     Logger.debug(table_result);
 

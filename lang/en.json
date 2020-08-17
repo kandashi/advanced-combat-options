@@ -9,5 +9,8 @@
   "aco.settings.TH-SETTING.hint"  : "Randomly rolls HP for unlinked tokens.",
 
   "aco.settings.UE-SETTING.title" : "Unconscious Exhaustion",
-  "aco.settings.UE-SETTING.hint"  : "When a player's health lowers to 0, they gain a level of exhaustion."
+  "aco.settings.UE-SETTING.hint"  : "When a player's health lowers to 0, they gain a level of exhaustion.",
+
+  "aco.settings.HS-SETTING.title" : "Healing Surge",
+  "aco.settings.HS-SETTING.hint"  : "Changes the behaviour of short rests, restoring a 1/4 of hit die and changes the behaviour of long rests, restoring all hit die."
 }
