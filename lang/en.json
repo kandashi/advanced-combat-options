@@ -6,5 +6,8 @@
   "aco.settings.MD-SETTING.hint"  : "If a creature takes more than half its health in 1 hit, Massive Damage will roll for the creature.",
 
   "aco.settings.TH-SETTING.title" : "Token HP",
-  "aco.settings.TH-SETTING.hint"  : "Randomly rolls HP for unlinked tokens."
+  "aco.settings.TH-SETTING.hint"  : "Randomly rolls HP for unlinked tokens.",
+
+  "aco.settings.UE-SETTING.title" : "Unconscious Exhaustion",
+  "aco.settings.UE-SETTING.hint"  : "When a player's health lowers to 0, they gain a level of exhaustion."
 }

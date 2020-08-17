@@ -21,6 +21,8 @@ export async function onChange_Actor(actor, updateData)
   
       game.socket.emit('module.advanced-combat-options', { name : "LI", data : data});
       recieveData(data);
+    }else{
+      Logger.debug(`on Change | Lingering Injury NOT Detected on ${actor.name}!`);
     }
   }, 500);
 }
@@ -50,7 +52,7 @@ export function recieveData(data)
 {
   Logger.debug("Recieved Data", data);
 
-  let actor = canvas.tokens.get(data.id).actor ? canvas.tokens.get(data.id).actor : game.actors.get(data.id);
+  let actor = canvas.tokens.get(data.id)?.actor ? canvas.tokens.get(data.id).actor : game.actors.get(data.id);
 
   Logger.debug("Actor Data : ", actor);
 

@@ -6,6 +6,7 @@ export function registerSettings()
   Lingering_Injuries_Settings();
   Massive_Damage_Settings();
   Token_Settings();
+  Unconscious_Exhaustion_Settings();
 }
 
 function Logger_Settings()
@@ -60,6 +61,22 @@ function Token_Settings()
   game.settings.register('advanced-combat-options','TH-SETTING', {
     name : i18n("aco.settings.TH-SETTING.title"),
     hint : i18n("aco.settings.TH-SETTING.hint"),
+    scope :"world",
+    config : true,
+    default : false,
+    type : Boolean,
+    onChange : value => {
+        window.location.reload();
+    }
+  });
+}
+
+function Unconscious_Exhaustion_Settings()
+{
+  Logger.info("Registering Unconscious Exhaustion Settings");
+  game.settings.register('advanced-combat-options','UE-SETTING', {
+    name : i18n("aco.settings.UE-SETTING.title"),
+    hint : i18n("aco.settings.UE-SETTING.hint"),
     scope :"world",
     config : true,
     default : false,

@@ -18,7 +18,7 @@ export function onChange_Actor(actor, updateData)
     game.socket.emit('module.advanced-combat-options', { name : "MD", data : data});
     recieveData(data);
   }else{
-    Logger.debug(`No Massive Actor Damage Detected ${actor.name}`); 
+    Logger.debug(`Massive Actor Damage NOT Detected ${actor.name}`); 
   }  
 }
 
@@ -40,7 +40,7 @@ export function onChange_Token(token, updateData)
     game.socket.emit('module.advanced-combat-options', { name : "MD", data : data});
     recieveData(data);
   }else{
-    Logger.debug(`No Massive Token Damage Detected ${token.name}`);
+    Logger.debug(`Massive Token Damage NOT Detected ${token.name}`);
   } 
 }
 
@@ -48,13 +48,11 @@ export function recieveData(data)
 {
   Logger.debug("Recieved Data", data);
 
-  let actor = canvas.tokens.get(data.actorData.token._id) ? canvas.tokens.get(data.actorData.token._id) : game.actors.get(data.actorData._id);
+  let actor = canvas.tokens.get(data.actorData.token._id)?.actor ? canvas.tokens.get(data.actorData.token._id).actor : game.actors.get(data.actorData._id);
 
   if(actor.data.permission[game.userId] === CONST.ENTITY_PERMISSIONS.OWNER && !game.user.isGM)
   {
     Logger.debug("Entered inside the logic statement --- con save should result");
-
-    let actor = canvas.tokens.get(data.actorData.token._id) ? canvas.tokens.get(data.actorData.token._id) : game.actors.get(data.actorData._id);
 
     actor.rollAbilitySave("con").then((results)  =>{
       if(!results) return;
@@ -77,7 +75,7 @@ export function recieveData(data)
     //maybe do stuff?
     Logger.debug("This isn't owned by any player --- default to GM");
 
-    let actor = canvas.tokens.get(data.actorData.token._id) ? canvas.tokens.get(data.actorData.token._id) : game.actors.get(data.actorData._id);
+    let actor = canvas.tokens.get(data.actorData.token._id)?.actor ? canvas.tokens.get(data.actorData.token._id)?.actor : game.actors.get(data.actorData._id);
 
     actor.rollAbilitySave("con").then((results)  =>{
       if(!results) return;

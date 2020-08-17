@@ -4,6 +4,7 @@ import * as settings from './settings.js';
 import * as LI_module from './lingering-injuries.js';
 import * as MD_module from './massive-damage.js';
 import * as TH_module from './token_hp.js';
+import * as UE_module from './unconscious_exhaustion.js';
 
 Hooks.on('init', ()=>{
   Logger.info("Registering All Settings.");
@@ -20,6 +21,10 @@ Hooks.on('ready', () => {
     if(data?.name === "MD" && game.settings.get('advanced-combat-options','LI-SETTING'))
     {
       MD_module.recieveData(data?.data);
+    }
+    if(data?.name === "UE" && game.settings.get('advanced-combat-options','UE-SETTING'))
+    {
+      UE_module.recieveData(data?.data);
     }
   });
 });
@@ -45,6 +50,12 @@ Hooks.on('preUpdateActor', (actor, updateData, difference, id)=>{
   if(game.settings.get('advanced-combat-options','MD-SETTING') && hasProperty(updateData, "data.attributes.hp.value"))
   {
     MD_module.onChange_Actor(actor,updateData);
+  }
+
+  //Unconscious Exhaustion
+  if(game.settings.get('advanced-combat-options','UE-SETTING') && hasProperty(updateData, "data.attributes.hp.value"))
+  {
+    UE_module.onChange_Actor(actor,updateData);
   }
 });
 
