@@ -8,6 +8,7 @@ export function registerSettings()
   Token_Settings();
   Unconscious_Exhaustion_Settings();
   Healing_Surge_Settings();
+  Exhaustion_Removal_Settings();
 }
 
 function Logger_Settings()
@@ -94,6 +95,22 @@ function Healing_Surge_Settings()
   game.settings.register('advanced-combat-options','HS-SETTING', {
     name : i18n("aco.settings.HS-SETTING.title"),
     hint : i18n("aco.settings.HS-SETTING.hint"),
+    scope :"world",
+    config : true,
+    default : false,
+    type : Boolean,
+    onChange : value => {
+        window.location.reload();
+    }
+  });
+}
+
+function Exhaustion_Removal_Settings()
+{
+  Logger.info("Registering Exhaustion Removal Settings");
+  game.settings.register('advanced-combat-options','ER-SETTING', {
+    name : i18n("aco.settings.ER-SETTING.title"),
+    hint : i18n("aco.settings.ER-SETTING.hint"),
     scope :"world",
     config : true,
     default : false,

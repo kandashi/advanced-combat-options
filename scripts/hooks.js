@@ -6,6 +6,7 @@ import * as MD_module from './massive-damage.js';
 import * as TH_module from './token_hp.js';
 import * as UE_module from './unconscious_exhaustion.js';
 import * as HS_module from './healing_surge.js';
+import * as ER_module from './exhaustion_recovery.js';
 
 Hooks.on('init', ()=>{
   Logger.info("Registering All Settings.");
@@ -37,9 +38,9 @@ Hooks.on('preCreateToken', (scene,token,options,id) => {
   TH_module.onCreate(scene,token);
 });
 
-Hooks.on('preUpdateActor', (actor, updateData, difference, id)=>{
+Hooks.on('preUpdateActor', (actor, updateData, diff, id)=>{
   Logger.info("Pre Update Actor Capture");
-  Logger.debug("Pre Update Actor | ",actor,updateData,difference,id);
+  Logger.debug("Pre Update Actor | ",actor,updateData,diff,id);
 
   //Lingering Injuries
   if(game.settings.get('advanced-combat-options','LI-SETTING'))
@@ -58,11 +59,13 @@ Hooks.on('preUpdateActor', (actor, updateData, difference, id)=>{
   {
     UE_module.onChange_Actor(actor,updateData);
   }
+
+  //Exhaustion Status (change some values maybe, mostly display and death id say.)
 });
 
-Hooks.on('preUpdateToken', (scene,token,updateData,difference, id)=>{
+Hooks.on('preUpdateToken', (scene,token,updateData,diff, id)=>{
   Logger.info("Pre Update Token Capture");
-  Logger.debug("Pre Update Token | ",scene,token,updateData,difference,id);
+  Logger.debug("Pre Update Token | ",scene,token,updateData,diff,id);
 
   //Lingering Injuries
   if(game.settings.get('advanced-combat-options','LI-SETTING') && hasProperty(updateData, "actorData.data.attributes.hp.value"))
@@ -78,16 +81,26 @@ Hooks.on('preUpdateToken', (scene,token,updateData,difference, id)=>{
 });
 
 Hooks.on(`renderLongRestDialog`, (dialog, html)=> { 
+  Logger.info(`Render Long Rest Dialog Capture`);
+  Logger.debug(`Hooks | Render Long Rest Dialog | Variables | `, dialog,html);
   if(game.settings.get('advanced-combat-options','HS-SETTING'))
   {
-    Logger.debug(`Hooks | Render Long Rest Dialog | Variables | `, dialog,html);
-    document.getElementById(`long-rest`)[1].addEventListener("click", () => { 
-      HS_module.onChange_Actor(dialog.actor,"longrest");
+    document.getElementById(`long-rest`)[1].addEventListener("click", async () => { 
+      await HS_module.onChange_Actor(dialog.actor,"longrest");
+    });
+  }
+
+  if(game.settings.get('advanced-combat-options','ER-SETTING'))
+  {
+    document.getElementById(`long-rest`)[1].addEventListener("click", async () => { 
+      await ER_module.onChange_Actor(dialog.actor,"longrest");
     });
   }
 });
 
 Hooks.on(`renderShortRestDialog`, (dialog,html) => {
+  Logger.info(`Render Short Rest Dialog Capture`);
+  Logger.debug(`Hooks | Render Short Rest Dialog | Variables | `, dialog,html);
   if(game.settings.get('advanced-combat-options','HS-SETTING'))
   {
     /*

@@ -7,16 +7,6 @@ export async function onChange_Actor(actor, rest, previousHD = 0)
   if(!actor) return ui.notifications.error(`Actor error`);
   if(!rest) return ui.notifiactions.error(`Rest Error`);
 
-  let updated_actor = game.actors.get(actor.id);
-
-  let usedHD = 0;
-
-  updated_actor.items.filter(i=>i.data.type === "class").reduce((item)=>{
-    usedHD += item.data.data.hitDiceUsed; //amount of hitdie that are missing
-  });
-
-  usedHD -= previousHD;
-
   switch(rest)
   {
     case "longrest":
@@ -29,8 +19,6 @@ export async function onChange_Actor(actor, rest, previousHD = 0)
       ui.notifications.error(`Healing Surge | on Change Actor | Error.`);
       break;
   }
-
-  return previousHD;
 }
 
 async function longRest(actor)
@@ -43,8 +31,12 @@ async function longRest(actor)
     }
     return updates;
   }, []);
+  Logger.debug("Long Rest Var | ",updateItems);
+  setTimeout(async ()=>{
+    if(updateItems.length) await actor.updateEmbeddedEntity("OwnedItem", updateItems);
 
-  if(updateItems.length) await actor.updateEmbeddedEntity("OwnedItem", updateItems);
+    //look for last chatMessage and change values?
+  }, 100);  
 }
 
 async function shortRest(actor)
@@ -68,4 +60,6 @@ async function shortRest(actor)
   }, []);
 
   if(updateItems.length) await actor.updateEmbeddedEntity("OwnedItem", updateItems);
+
+  //look for last chatMessage and change values?
 }

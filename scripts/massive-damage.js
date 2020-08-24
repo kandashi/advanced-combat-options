@@ -63,7 +63,7 @@ export function recieveData(data)
           game.packs.find(p=>p.title === "ACO Tables").getContent().then((result) =>{
             if(!result) return;
 
-            let table = result.find(r => r.name === "Massive Damage; System Shock")
+            let table = result.find(r => r.name === "Massive Damage")
 
             table.draw();
           });

@@ -12,5 +12,8 @@
   "aco.settings.UE-SETTING.hint"  : "When a player's health lowers to 0, they gain a level of exhaustion.",
 
   "aco.settings.HS-SETTING.title" : "Healing Surge",
-  "aco.settings.HS-SETTING.hint"  : "Changes the behaviour of short rests, restoring a 1/4 of hit die and changes the behaviour of long rests, restoring all hit die."
+  "aco.settings.HS-SETTING.hint"  : "Changes the behaviour of short rests, restoring a 1/4 of hit die and changes the behaviour of long rests, restoring all hit die.",
+
+  "aco.settings.ER-SETTING.title" : "Exhaustion Removal",
+  "aco.settings.ER-SETTING.hint"  : "When a character finishes a long rest, automatically removes a level of exhaustions (assumes based on the rules that player at `their fill`)"
 }
