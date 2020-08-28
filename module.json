@@ -3,9 +3,9 @@
   "title" : "Advanced Combat Options",
   "description" : "Provides small bits of automation for specific optional rules for the 5e ruleset.",
   "author" : ["kekilla#7036"],
-  "version" : "0.0.1",
+  "version" : "0.0.2",
   "minimumCoreVersion" : "0.6.0",
-  "compatibleCoreVersion" : "0.6.5",
+  "compatibleCoreVersion" : "0.6.6",
   "systems" : ["dnd5e"],
   "esmodules" : ["scripts/hooks.js"],
   "languages" : [
@@ -34,5 +34,5 @@
   "socket" : true,
   "url" : "https://github.com/Kekilla0/advanced-combat-options",
   "manifest" : "https://github.com/Kekilla0/advanced-combat-options/raw/master/module.json",
-  "download" : "https://github.com/Kekilla0/advanced-combat-options/archive/v0.0.1.zip"
+  "download" : "https://github.com/Kekilla0/advanced-combat-options/archive/v0.0.2.zip"
 }
