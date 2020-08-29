@@ -9,7 +9,7 @@ export async function onChange_Actor(actor, updateData)
     actorHP : actor.data.data.attributes.hp.value,
     updateHP : (hasProperty(updateData,"data.attributes.hp.value") ? updateData.data.attributes.hp.value : 0),
     hpChange : (actor.data.data.attributes.hp.value - (hasProperty(updateData,"data.attributes.hp.value") ? updateData.data.attributes.hp.value : actor.data.data.attributes.hp.value)),
-    actorDS : actor.data.data.attributes?.death.failure,
+    actorDS : actor.data.data.attributes?.death?.failure,
     updateDS : (hasProperty(updateData,"data.attributes.death.failure") ? updateData.data.attributes.death.failure : 0),
     dsChange : (actor.data.data.attributes.death.failure - (hasProperty(updateData,"data.attributes.death.failure") ? updateData.data.attributes.death.failure : actor.data.data.attributes.death.failure))
   };
