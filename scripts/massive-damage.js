@@ -60,7 +60,8 @@ export function recieveData(data)
       setTimeout(()=> {
         if(results.total < 15)
         {
-          game.packs.find(p=>p.title === "ACO Tables").getContent().then((result) =>{
+          //fix solution
+          game.packs.find(p=>p.metadata.label === "ACO Tables").getContent().then((result) =>{
             if(!result) return;
 
             let table = result.find(r => r.name === "Massive Damage")

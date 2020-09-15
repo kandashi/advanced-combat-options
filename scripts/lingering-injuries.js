@@ -72,8 +72,8 @@ async function executeInjury(actor = {})
 {
   setTimeout(async ()=> {
 
-    let table_pack = await game.packs.find(p=>p.title === "ACO Tables").getContent();
-    let item_pack = await game.packs.find(p=>p.title === "ACO Items").getContent();
+    let table_pack = await game.packs.find(p=>p.metadata.label === "ACO Tables").getContent();
+    let item_pack = await game.packs.find(p=>p.metadata.label === "ACO Items").getContent();
 
     Logger.debug(table_pack,item_pack);
 
